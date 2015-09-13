@@ -4,7 +4,7 @@ class OsspUuid < Formula
   url "http://ftp.de.debian.org/debian/pool/main/o/ossp-uuid/ossp-uuid_1.6.2.orig.tar.gz"
   mirror "ftp://ftp.ossp.org/pkg/lib/uuid/uuid-1.6.2.tar.gz"
   sha256 "11a615225baa5f8bb686824423f50e4427acd3f70d394765bdff32801f0fd5b0"
-  revision 1
+  revision 2
 
   bottle do
     cellar :any
@@ -16,6 +16,11 @@ class OsspUuid < Formula
 
   option :universal
   option "32-bit"
+
+# patch: upstream ticket: http://cvs.ossp.org/tktview?tn=200
+# pkg-config --cflags uuid returns the wrong directory since we override the
+# default, but uuid.pc.in does not use it
+  patch :DATA
 
   def install
     if build.universal?
@@ -33,3 +38,14 @@ class OsspUuid < Formula
     system "make", "install"
   end
 end
+__END__
+--- uuid-1.6.2/uuid.pc.in
++++ uuid-1.6.2/uuid.pc.in
+@@ -30,5 +30,5 @@
+ prefix=@prefix@
+-exec_prefix=${prefix}
+-includedir=${prefix}/include
+-libdir=${exec_prefix}/lib
++exec_prefix=@exec_prefix@
++includedir=@includedir@
++libdir=@libdir@
